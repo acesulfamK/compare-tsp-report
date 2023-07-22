@@ -10,6 +10,7 @@ public class BranchBound{
     static int[] minPath;
     static ArrayList<Integer> currentPath;
     static float pruningValue;
+    static boolean setVisible = false;
 
 
     static void visitedReset(){
@@ -44,10 +45,13 @@ public class BranchBound{
     
     static void branchBoundFunc(int node){
         currentPath.add(node);
-        System.out.println("now: "+currentPath.toString());
+        if(setVisible){
+            System.out.println("now: "+currentPath.toString());
+        }
 
         if(isPruning()){
-            System.out.println("Prune!");
+            if(setVisible)
+                System.out.println("Prune!");
             currentPath.remove(currentPath.size()-1);
             return;            
         }
@@ -72,21 +76,17 @@ public class BranchBound{
     
 
     private static void makeGraph(){
-        String filePath = "./graph/square.txt";
+        String filePath = "./graph/Oct.txt";
         try(BufferedReader br = new BufferedReader(new FileReader(filePath))){
             String[] value1 = br.readLine().split(" ");
             n = Integer.parseInt(value1[0]);
             pruningValue = Integer.parseInt(value1[1]);
-            int counter = 0;
-            String line;
             distReset();
-            while((line = br.readLine()) != null){
-                if(counter/n == counter%n){
-                    dist[counter/n][counter%n] = 0;
-                    counter++;
+            for(int i=0;i<n;i++){
+                String[] strList = br.readLine().split(" ");
+                for(int j=0;j<n;j++){
+                    dist[i][j] = Float.parseFloat(strList[j]);
                 }
-                dist[counter/n][counter%n] = Float.parseFloat(line);
-                counter++;
             }
             
             for(int i=0;i<n;i++){
@@ -101,8 +101,6 @@ public class BranchBound{
         } catch (IOException e){
             e.printStackTrace();
         }
-        
-        
     }
     
     public static void main(String[] args){

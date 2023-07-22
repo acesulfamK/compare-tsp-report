@@ -1,17 +1,22 @@
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 
 public class AntColonyOptimization {
     static int n;
     static float[][] dist;
     static int k = 100;
     static float[][] tau;
+    static float[][] nextTau;
     static float[][] eta;
     static final float PHEROMONE_EVAPORATION_RATE = 0.5f;
     static final float ALPHA = 1;
     static final float BETA = 5;
     static final int ITERATIONS = 100;
+    static boolean setVisible = false;
 
     static class Ant {
         int current;
@@ -42,7 +47,7 @@ public class AntColonyOptimization {
 
             // Return to starting point
             pathLength += dist[current][start];
-            updatePheromone(visited, pathLength);
+            setPheromone(visited, pathLength);
             return pathLength;
         }
 
@@ -63,12 +68,27 @@ public class AntColonyOptimization {
             return omega.get(0); 
         }
 
-        public void updatePheromone(ArrayList<Integer> visited, float pathLength) {
+        public void setPheromone(ArrayList<Integer> visited, float pathLength) {
             for (int i = 0; i < visited.size() - 1; i++) {
                 int from = visited.get(i);
                 int to = visited.get(i + 1);
-                tau[from][to] = (1 - PHEROMONE_EVAPORATION_RATE) * tau[from][to] + (1 / pathLength);
+                nextTau[from][to] += 1 / pathLength;
             }
+        }
+    }
+    
+    public static void updatePheromone(){
+        for(int i=0;i<n;i++){
+            for(int j=0;j<n;j++){
+                tau[i][j] = ( 1 - PHEROMONE_EVAPORATION_RATE) * tau[i][j] + nextTau[i][j];
+            }
+        }
+    }
+
+    static void distReset(){
+        dist = new float[n][];
+        for(int i=0;i<n;i++){
+            dist[i] = new float[n];
         }
     }
 
@@ -78,6 +98,7 @@ public class AntColonyOptimization {
         float bestLength = Float.MAX_VALUE;
 
         for (int iteration = 0; iteration < ITERATIONS; iteration++) {
+            initializeNextTau();
             for (int i = 0; i < k; i++) {
                 Ant ant = new Ant(i % n); // Start each ant from a different node
                 float currentLength = ant.traverse();
@@ -85,8 +106,20 @@ public class AntColonyOptimization {
                     bestLength = currentLength;
                 }
             }
+            updatePheromone();
         }
         return new float[]{bestLength};
+    }
+
+    public static void initializeNextTau() {
+        nextTau = new float[n][n];
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                if (i != j) {
+                    nextTau[i][j] = 0;
+                }
+            }
+        }
     }
 
     public static void initializeEta() {
@@ -106,16 +139,38 @@ public class AntColonyOptimization {
             Arrays.fill(tau[i], 1.0f);
         }
     }
+    
+    
+    private static void makeGraph(){
+        String filePath = "./graph/Oct.txt";
+        try(BufferedReader br = new BufferedReader(new FileReader(filePath))){
+            String[] value1 = br.readLine().split(" ");
+            n = Integer.parseInt(value1[0]);
+            distReset();
+
+            for(int i=0;i<n;i++){
+                String[] strList = br.readLine().split(" ");
+                for(int j=0;j<n;j++){
+                    dist[i][j] = Float.parseFloat(strList[j]);
+                }
+            }
+            
+            //for(int i=0;i<n;i++){
+            //    for(int j=0;j<n;j++){
+            //        System.out.print(""+dist[i][j]+" ");
+            //    }
+            //    System.out.println();
+            //}
+            //
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+    }
 
     public static void main(String[] args) {
         // Set up a sample graph
-        n = 4;
-        dist = new float[][] {
-            {0, 10, 14, 10},
-            {10, 0, 10, 14},
-            {14, 10, 0, 10},
-            {10, 14, 10, 0}
-        };
+        makeGraph();
         float[] result = optimize();
         System.out.println("Shortest path found: " + result[0]);
     }
