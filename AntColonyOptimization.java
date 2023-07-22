@@ -141,7 +141,7 @@ public class AntColonyOptimization {
     }
     
     
-    private static void makeGraph(){
+    private static void loadGraphFromMatrix(){
         String filePath = "./graph/Oct.txt";
         try(BufferedReader br = new BufferedReader(new FileReader(filePath))){
             String[] value1 = br.readLine().split(" ");
@@ -167,10 +167,55 @@ public class AntColonyOptimization {
             e.printStackTrace();
         }
     }
+    
+    
+    public static class Point {
+        public double x, y;
+
+        public Point(double x, double y) {
+            this.x = x;
+            this.y = y;
+        }
+
+        public double dist(Point p) {
+            return Math.sqrt(Math.pow(this.x - p.x, 2) + Math.pow(this.y - p.y, 2));
+        }
+    }
+
+
+    static void loadGraphFromPoint(){
+        ArrayList<Point> vertices = new ArrayList<>();
+        String filename = "./points/square.txt";
+        try(BufferedReader br = new BufferedReader(new FileReader(filename))){
+            String[] parts1 = br.readLine().split(" ");
+            n = Integer.parseInt(parts1[0]);
+            distReset();
+            String line;
+            while((line = br.readLine()) != null){
+                String[] parts = line.split(" ");
+                vertices.add(new Point(Float.parseFloat(parts[0]), Float.parseFloat(parts[1])));
+                
+            }
+
+        } catch (IOException e){
+            e.printStackTrace();
+        }
+        
+        n = vertices.size();
+        // テキストファイルに書き込み
+        for (int i = 0; i < n; i++) {
+            for (int j = 0; j < n; j++) {
+                dist[i][j] = (float) vertices.get(i).dist(vertices.get(j));
+            }
+        }
+    }
+
+    
 
     public static void main(String[] args) {
         // Set up a sample graph
-        makeGraph();
+        loadGraphFromPoint();
+        //loadGraphFromMatrix();
         float[] result = optimize();
         System.out.println("Shortest path found: " + result[0]);
     }
