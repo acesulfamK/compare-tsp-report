@@ -3,6 +3,7 @@ import java.util.Arrays;
 import java.util.Random;
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.*;
 import java.io.IOException;
 
 public class AntColonyOptimization {
@@ -15,8 +16,11 @@ public class AntColonyOptimization {
     static final float PHEROMONE_EVAPORATION_RATE = 0.5f;
     static final float ALPHA = 1;
     static final float BETA = 5;
-    static final int ITERATIONS = 100;
+    static final int ITERATIONS = 30;
     static boolean setVisible = false;
+    static ArrayList<ArrayList<Integer>> outputPaths;
+    static ArrayList<Float> xList;
+    static ArrayList<Float> yList;
 
     static class Ant {
         int current;
@@ -46,6 +50,7 @@ public class AntColonyOptimization {
             }
 
             // Return to starting point
+            outputPaths.add(visited);
             pathLength += dist[current][start];
             setPheromone(visited, pathLength);
             return pathLength;
@@ -93,6 +98,7 @@ public class AntColonyOptimization {
     }
 
     public static float[] optimize() {
+        outputPaths = new ArrayList<>();
         initializeEta();
         initializeTau();
         float bestLength = Float.MAX_VALUE;
@@ -183,17 +189,21 @@ public class AntColonyOptimization {
     }
 
 
-    static void loadGraphFromPoint(){
+    static void loadGraphFromPoint(String filepath){
         ArrayList<Point> vertices = new ArrayList<>();
-        String filename = "./points/square.txt";
+        String filename = filepath;
         try(BufferedReader br = new BufferedReader(new FileReader(filename))){
             String[] parts1 = br.readLine().split(" ");
             n = Integer.parseInt(parts1[0]);
             distReset();
+            xList = new ArrayList<>();
+            yList = new ArrayList<>();
             String line;
             while((line = br.readLine()) != null){
                 String[] parts = line.split(" ");
                 vertices.add(new Point(Float.parseFloat(parts[0]), Float.parseFloat(parts[1])));
+                xList.add(Float.parseFloat(parts[0]));
+                yList.add(Float.parseFloat(parts[1]));
                 
             }
 
@@ -210,13 +220,38 @@ public class AntColonyOptimization {
         }
     }
 
-    
+
+    static void makeSceneFile(){
+        // ファイルに書き込み
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter("./scene/ouput.txt"))) {
+            writer.write(n+" ");
+            writer.write(outputPaths.size()+" ");
+            writer.newLine();
+            for(int i=0;i<n;i++){
+                writer.write(xList.get(i)+ " ");
+                writer.write(yList.get(i)+ " ");
+                writer.newLine();
+            }
+            for (ArrayList<Integer> row : outputPaths) {
+                for (Integer num : row) {
+                    writer.write(num + " ");
+                }
+                // 行の終わり
+                writer.newLine();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        
+    }
+
 
     public static void main(String[] args) {
         // Set up a sample graph
-        loadGraphFromPoint();
+        loadGraphFromPoint("./points/japan.txt");
         //loadGraphFromMatrix();
         float[] result = optimize();
         System.out.println("Shortest path found: " + result[0]);
+        makeSceneFile();
     }
 }
