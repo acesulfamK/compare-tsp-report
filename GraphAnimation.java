@@ -12,7 +12,8 @@ public class GraphAnimation extends JFrame {
     private List<Point.Double> vertices = new ArrayList<>();
     private List<List<Integer>> paths = new ArrayList<>();
     private int currentPathIndex = 0;
-    private int TIME_STEP = 500;
+    private int TIME_STEP = 200;
+    private int TIME_START = 1000;
 
     public GraphAnimation(String filePath) throws IOException {
         setTitle("Graph Animation");
