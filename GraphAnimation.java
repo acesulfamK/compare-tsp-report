@@ -86,7 +86,7 @@ public class GraphAnimation extends JFrame {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                new GraphAnimation("./scene/japanAnt.txt").setVisible(true);
+                new GraphAnimation("./scene/japanBb.txt").setVisible(true);
             } catch (IOException e) {
                 e.printStackTrace();
             }

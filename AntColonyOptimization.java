@@ -9,14 +9,14 @@ import java.io.IOException;
 public class AntColonyOptimization {
     static int n;
     static float[][] dist;
-    static int k = 100;
+    static int k = 10;
     static float[][] tau;
     static float[][] nextTau;
     static float[][] eta;
     static final float PHEROMONE_EVAPORATION_RATE = 0.5f;
     static final float ALPHA = 1;
     static final float BETA = 5;
-    static final int ITERATIONS = 30;
+    static final int ITERATIONS = 100;
     static boolean setVisible = false;
     static ArrayList<ArrayList<Integer>> outputPaths;
     static ArrayList<Float> xList;
